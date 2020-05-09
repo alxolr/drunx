@@ -1,9 +1,15 @@
 [package]
 name = "drunx"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Alexandru Olaru <alxolr@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+clap = "2"
+regex = "1"
+
+[dev-dependencies]
+assert_cmd = "1"
+predicates = "1"
