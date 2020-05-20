@@ -1,7 +1,6 @@
 use regex::Regex;
 
-
-pub fn find<'a>(contents: &str) -> Option<String> {
+pub fn find(contents: &str) -> Option<String> {
   let re = Regex::new(r#""version":\s"([0-9a-z\.]+)""#).unwrap();
   let capts = re.captures(contents);
 
@@ -10,12 +9,11 @@ pub fn find<'a>(contents: &str) -> Option<String> {
   } else {
     None
   }
-
 }
 
 #[cfg(test)]
-mod test {
-  use super::*;
+mod find {
+  use super::find;
 
   #[test]
   fn extracts_the_version_if_exits() {
@@ -61,6 +59,5 @@ mod test {
     }"#;
 
     assert_eq!(find(content), Some(String::from("1.0.0x")));
-
   }
 }
