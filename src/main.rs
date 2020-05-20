@@ -1,3 +1,5 @@
+mod version_finder;
+
 use std::error::Error;
 use std::process;
 
