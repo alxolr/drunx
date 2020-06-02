@@ -13,9 +13,9 @@ use std::process;
     rename_all = "kebab-case"
 )]
 enum Drunx {
-    Patch {
-        #[structopt(help = "Sprint number used in the created tag")]
-        sprint: i32,
+    Version {
+        #[structopt(help = "Sprint version tag")]
+        release: String,
         #[structopt(
             short = "d",
             long = "dry_run",
@@ -32,24 +32,45 @@ enum Drunx {
     },
 }
 
+fn change_version_in_file(newVersion: &str, filePath: &PathBuf) -> Result<(), Box<dyn Error>> {
+    let file = OpenOptions::new().read(true).open(filePath.as_path())?;
+
+    let mut buf_reader = BufReader::new(file);
+    let mut contents = String::new();
+    buf_reader.read_to_string(&mut contents)?;
+
+    let version = version_utils::find(&contents);
+    if version.is_some() {
+        contents = contents.replace(&version.unwrap(), newVersion);
+    }
+
+    let mut file = OpenOptions::new().write(true).open(filePath.as_path())?;
+
+    file.write_all(contents.as_bytes())?;
+    file.sync_all()?;
+
+    Ok(())
+}
+
 fn run() -> Result<(), Box<dyn Error>> {
-    let drunx = Drunx::from_args();
-    println!("{:?}", drunx);
+    let Drunx::Version {
+        release,
+        path,
+        dry_run,
+    } = Drunx::from_args();
 
-    // let file = OpenOptions::new().read(true).open("data/package.json")?;
-    // let mut buf_reader = BufReader::new(file);
-    // let mut contents = String::new();
-    // buf_reader.read_to_string(&mut contents)?;
+    let package_json_path = PathBuf::from(&path).join("package.json");
+    let package_lock_json_path = PathBuf::from(&path).join("package-lock.json");
 
-    // let version = version_utils::find(&contents);
-    // if version.is_some() {
-    //     contents = contents.replace(&version.unwrap(), "3.0.0a");
-    // }
-
-    // let mut file = OpenOptions::new().write(true).open("data/package.json")?;
-
-    // file.write_all(contents.as_bytes())?;
-    // file.sync_all()?;
+    if dry_run {
+        println!(
+            "Changing version to in package.json and package-lock.json {}",
+            release
+        );
+    } else {
+        change_version_in_file(&release, &package_json_path)?;
+        change_version_in_file(&release, &package_lock_json_path)?;
+    }
 
     Ok(())
 }
