@@ -4,13 +4,14 @@ use std::error::Error;
 use std::fs::OpenOptions;
 use std::io::{BufReader, Read, Write};
 use std::path::PathBuf;
+use std::process::{Command, Stdio};
 use std::result::Result;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 #[structopt(about = "Release the specific version in package.json, package-lock.json")]
 pub struct Version {
-    #[structopt(help = "Version tag")]
+    #[structopt(help = "Semver version")]
     release: String,
     #[structopt(
         short = "d",
@@ -32,11 +33,42 @@ impl Version {
         let package_path = PathBuf::from(&self.path).join("package.json");
         let package_lock_path = PathBuf::from(&self.path).join("package-lock.json");
 
-        println!("Adding version in package.json");
-        self.replace(&package_path)?;
+        println!("Updating version '{}' in package.json", &self.release);
+        println!("Updating version '{}' in package-lock.json", &self.release);
+        if !self.dry_run {
+            self.replace(&package_path)?;
+            self.replace(&package_lock_path)?;
+        }
 
-        println!("Changing version in package-lock.json");
-        self.replace(&package_lock_path)?;
+        println!("git add . ");
+        if !self.dry_run {
+            self.run_git_add();
+        }
+
+        println!("git commit -a -m \"{}\"", &self.release);
+        if !self.dry_run {
+            self.run_git_commit();
+        }
+
+        println!(
+            "git tag -a \"{}\" -m \"{}\"",
+            &self.release,
+            format!("Released version 'v{}'", &self.release)
+        );
+
+        if !self.dry_run {
+            self.run_git_tag();
+        }
+
+        println!("git push");
+        if !self.dry_run {
+            self.run_git_push(false);
+        }
+
+        println!("git push --tags");
+        if !self.dry_run {
+            self.run_git_push(true);
+        }
 
         Ok(())
     }
@@ -59,5 +91,52 @@ impl Version {
         file.sync_all()?;
 
         Ok(())
+    }
+
+    fn run_git_add(&self) {
+        Command::new("git")
+            .args(&["add", "."])
+            .stdout(Stdio::null())
+            .current_dir(&self.path.as_path())
+            .spawn()
+            .expect("git add failed");
+    }
+
+    fn run_git_commit(&self) {
+        Command::new("git")
+            .args(&["commit", "-a", "-m", &format!("v{}", &self.release)])
+            .stdout(Stdio::null())
+            .current_dir(&self.path.as_path())
+            .spawn()
+            .expect("git commit failed");
+    }
+
+    fn run_git_tag(&self) {
+        Command::new("git")
+            .args(&[
+                "tag",
+                "-a",
+                &format!("v{}", &self.release),
+                "-m",
+                &format!("Released version 'v{}'", &self.release),
+            ])
+            .stdout(Stdio::null())
+            .current_dir(&self.path.as_path())
+            .spawn()
+            .expect("git tag failed");
+    }
+
+    fn run_git_push(&self, only_tags: bool) {
+        let mut cmd = Command::new("git");
+
+        cmd.arg("push")
+            .stdout(Stdio::null())
+            .current_dir(&self.path.as_path());
+
+        if only_tags {
+            cmd.arg("--tags");
+        }
+
+        cmd.spawn().expect("git push failed");
     }
 }
