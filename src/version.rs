@@ -9,7 +9,9 @@ use std::result::Result;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
-#[structopt(about = "Release the specific version in package.json, package-lock.json")]
+#[structopt(
+    about = "Release the specified version in package.json, package-lock.json\nadds a release commit and an anotated tag"
+)]
 pub struct Version {
     #[structopt(help = "Semver version")]
     release: String,
