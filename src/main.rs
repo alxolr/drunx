@@ -1,7 +1,9 @@
+mod patch;
 mod patch_utils;
 mod version;
 mod version_utils;
 
+use patch::Patch;
 use std::error::Error;
 use std::process;
 use structopt::StructOpt;
@@ -14,11 +16,15 @@ use version::Version;
 )]
 enum Drunx {
     Version(Version),
+    Patch(Patch),
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
-    let Drunx::Version(version) = Drunx::from_args();
-    version.run()?;
+    let cmd = Drunx::from_args();
+    match cmd {
+        Drunx::Version(version) => version.run()?,
+        Drunx::Patch(patch) => patch.run()?,
+    }
 
     Ok(())
 }

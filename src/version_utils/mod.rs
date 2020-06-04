@@ -1,4 +1,8 @@
 use regex::Regex;
+use std::error::Error;
+use std::fs::OpenOptions;
+use std::io::{BufReader, Read, Write};
+use std::path::PathBuf;
 
 pub fn find(contents: &str) -> Option<String> {
   let re = Regex::new(r#""version":\s"([0-9a-z\.]+)""#).unwrap();
@@ -9,6 +13,26 @@ pub fn find(contents: &str) -> Option<String> {
   } else {
     None
   }
+}
+
+pub fn change_version(file_path: &PathBuf, next_version: &str) -> Result<(), Box<dyn Error>> {
+  let file = OpenOptions::new().read(true).open(file_path.as_path())?;
+
+  let mut buf_reader = BufReader::new(file);
+  let mut contents = String::new();
+  buf_reader.read_to_string(&mut contents)?;
+
+  let version = find(&contents);
+  if version.is_some() {
+    contents = contents.replace(&version.unwrap(), next_version);
+  }
+
+  let mut file = OpenOptions::new().write(true).open(file_path.as_path())?;
+
+  file.write_all(contents.as_bytes())?;
+  file.sync_all()?;
+
+  Ok(())
 }
 
 #[cfg(test)]

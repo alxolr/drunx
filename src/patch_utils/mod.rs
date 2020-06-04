@@ -1,4 +1,4 @@
-pub fn compute_patch(release: &str) -> String {
+pub fn compute_patch_letter(release: &str) -> String {
   let mut items = release.chars().collect::<Vec<char>>();
   let last = items.last().unwrap();
 
@@ -29,7 +29,7 @@ mod tests {
     let release = "1.0.0";
     let expected = "1.0.0a".to_string();
 
-    assert_eq!(compute_patch(release), expected);
+    assert_eq!(compute_patch_letter(release), expected);
   }
 
   #[test]
@@ -37,7 +37,7 @@ mod tests {
     let release = "1.0.0a";
     let expected = "1.0.0b".to_string();
 
-    assert_eq!(compute_patch(release), expected);
+    assert_eq!(compute_patch_letter(release), expected);
   }
 
   #[test]
@@ -45,6 +45,6 @@ mod tests {
     let release = "1.0.0z";
     let expected = "1.0.0aa".to_string();
 
-    assert_eq!(compute_patch(release), expected);
+    assert_eq!(compute_patch_letter(release), expected);
   }
 }

@@ -1,8 +1,6 @@
 use crate::version_utils;
 
 use std::error::Error;
-use std::fs::OpenOptions;
-use std::io::{BufReader, Read, Write};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::result::Result;
@@ -76,21 +74,7 @@ impl Version {
     }
 
     fn replace(&self, file_path: &PathBuf) -> Result<(), Box<dyn Error>> {
-        let file = OpenOptions::new().read(true).open(file_path.as_path())?;
-
-        let mut buf_reader = BufReader::new(file);
-        let mut contents = String::new();
-        buf_reader.read_to_string(&mut contents)?;
-
-        let version = version_utils::find(&contents);
-        if version.is_some() {
-            contents = contents.replace(&version.unwrap(), &self.release);
-        }
-
-        let mut file = OpenOptions::new().write(true).open(file_path.as_path())?;
-
-        file.write_all(contents.as_bytes())?;
-        file.sync_all()?;
+        version_utils::change_version(file_path, &self.release)?;
 
         Ok(())
     }
