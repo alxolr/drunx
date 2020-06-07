@@ -1,3 +1,7 @@
+use crate::git::Git;
+use crate::patch_utils;
+use crate::version_utils;
+
 use std::error::Error;
 use std::path::PathBuf;
 use std::result::Result;
@@ -23,8 +27,27 @@ pub struct Patch {
 
 impl Patch {
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
-        println!("hello world");
+        let package_path = PathBuf::from(&self.path).join("package.json");
+        let package_lock_path = PathBuf::from(&self.path).join("package-lock.json");
+        let release = self.get_patch_version(&package_path)?;
+
+        println!("Updating version '{}' in package.json", &release);
+        println!("Updating version '{}' in package-lock.json", &release);
+        if !self.dry_run {
+            version_utils::change_version(&package_path, &release)?;
+            version_utils::change_version(&package_lock_path, &release)?;
+        }
+
+        let git = Git::new(&self.path, &release, self.dry_run);
+        git.run()?;
 
         Ok(())
+    }
+
+    fn get_patch_version(&self, file_path: &PathBuf) -> Result<String, Box<dyn Error>> {
+        let current_version = version_utils::get_version_from_file(file_path)?;
+        let patch_version = patch_utils::compute_patch_letter(&current_version);
+
+        Ok(patch_version)
     }
 }

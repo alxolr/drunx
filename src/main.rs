@@ -1,3 +1,4 @@
+mod git;
 mod patch;
 mod patch_utils;
 mod version;

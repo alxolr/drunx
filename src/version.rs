@@ -1,8 +1,8 @@
+use crate::git::Git;
 use crate::version_utils;
 
 use std::error::Error;
 use std::path::PathBuf;
-use std::process::{Command, Stdio};
 use std::result::Result;
 use structopt::StructOpt;
 
@@ -39,36 +39,8 @@ impl Version {
             self.replace(&package_path)?;
             self.replace(&package_lock_path)?;
         }
-
-        println!("git add . ");
-        if !self.dry_run {
-            self.run_git_add();
-        }
-
-        println!("git commit -a -m \"{}\"", &self.release);
-        if !self.dry_run {
-            self.run_git_commit();
-        }
-
-        println!(
-            "git tag -a \"{}\" -m \"{}\"",
-            &self.release,
-            format!("Released version 'v{}'", &self.release)
-        );
-
-        if !self.dry_run {
-            self.run_git_tag();
-        }
-
-        println!("git push");
-        if !self.dry_run {
-            self.run_git_push(false);
-        }
-
-        println!("git push --tags");
-        if !self.dry_run {
-            self.run_git_push(true);
-        }
+        let git = Git::new(&self.path, &self.release, self.dry_run);
+        git.run()?;
 
         Ok(())
     }
@@ -77,52 +49,5 @@ impl Version {
         version_utils::change_version(file_path, &self.release)?;
 
         Ok(())
-    }
-
-    fn run_git_add(&self) {
-        Command::new("git")
-            .args(&["add", "."])
-            .stdout(Stdio::null())
-            .current_dir(&self.path.as_path())
-            .spawn()
-            .expect("git add failed");
-    }
-
-    fn run_git_commit(&self) {
-        Command::new("git")
-            .args(&["commit", "-a", "-m", &format!("v{}", &self.release)])
-            .stdout(Stdio::null())
-            .current_dir(&self.path.as_path())
-            .spawn()
-            .expect("git commit failed");
-    }
-
-    fn run_git_tag(&self) {
-        Command::new("git")
-            .args(&[
-                "tag",
-                "-a",
-                &format!("v{}", &self.release),
-                "-m",
-                &format!("Released version 'v{}'", &self.release),
-            ])
-            .stdout(Stdio::null())
-            .current_dir(&self.path.as_path())
-            .spawn()
-            .expect("git tag failed");
-    }
-
-    fn run_git_push(&self, only_tags: bool) {
-        let mut cmd = Command::new("git");
-
-        cmd.arg("push")
-            .stdout(Stdio::null())
-            .current_dir(&self.path.as_path());
-
-        if only_tags {
-            cmd.arg("--tags");
-        }
-
-        cmd.spawn().expect("git push failed");
     }
 }

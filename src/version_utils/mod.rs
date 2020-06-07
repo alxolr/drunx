@@ -15,6 +15,20 @@ pub fn find(contents: &str) -> Option<String> {
   }
 }
 
+pub fn get_version_from_file(file_path: &PathBuf) -> Result<String, Box<dyn Error>> {
+  let file = OpenOptions::new().read(true).open(file_path.as_path())?;
+  let mut buf_reader = BufReader::new(file);
+  let mut contents = String::new();
+  buf_reader.read_to_string(&mut contents)?;
+
+  let version = find(&contents);
+
+  match version {
+    Some(version) => Ok(version),
+    None => panic!("Couldn't find the version in the file"),
+  }
+}
+
 pub fn change_version(file_path: &PathBuf, next_version: &str) -> Result<(), Box<dyn Error>> {
   let file = OpenOptions::new().read(true).open(file_path.as_path())?;
 
