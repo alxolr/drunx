@@ -39,8 +39,8 @@ impl Version {
             self.replace(&package_path)?;
             self.replace(&package_lock_path)?;
         }
-        let git = Git::new(&self.path, &self.release, self.dry_run);
-        git.run()?;
+        let git = Git::new(&self.path, self.dry_run);
+        git.run(&self.release)?;
 
         Ok(())
     }

@@ -38,8 +38,8 @@ impl Patch {
             version_utils::change_version(&package_lock_path, &release)?;
         }
 
-        let git = Git::new(&self.path, &release, self.dry_run);
-        git.run()?;
+        let git = Git::new(&self.path, self.dry_run);
+        git.run(&release)?;
 
         Ok(())
     }
