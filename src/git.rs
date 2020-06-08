@@ -24,21 +24,27 @@ impl<'a> Git<'a> {
                 .stdout(Stdio::null())
                 .current_dir(&self.path.as_path())
                 .spawn()
-                .expect("git fetch failed");
+                .expect("git fetch failed")
+                .wait()
+                .expect("failed to finish git fetch");
 
             Command::new("git")
                 .args(&["checkout", to])
                 .stdout(Stdio::null())
                 .current_dir(&self.path.as_path())
                 .spawn()
-                .expect("git checkout failed");
+                .expect("git checkout failed")
+                .wait()
+                .expect("failed to finsih git checkout");
 
             Command::new("git")
                 .args(&["reset", "--hard", &format!("origin/{}", from)])
                 .stdout(Stdio::null())
                 .current_dir(&self.path.as_path())
                 .spawn()
-                .expect("git reset failed");
+                .expect("git reset failed")
+                .wait()
+                .expect("failed to finish git reset");
 
             self.run_git_push(false, true);
         }
@@ -74,7 +80,9 @@ impl<'a> Git<'a> {
             .stdout(Stdio::null())
             .current_dir(&self.path.as_path())
             .spawn()
-            .expect("git add failed");
+            .expect("git add failed")
+            .wait()
+            .expect("failed to finish 'git add'");
     }
 
     fn run_git_commit(&self, version: &str) {
@@ -83,7 +91,9 @@ impl<'a> Git<'a> {
             .stdout(Stdio::null())
             .current_dir(&self.path.as_path())
             .spawn()
-            .expect("git commit failed");
+            .expect("git commit failed")
+            .wait()
+            .expect("failed to finish 'git commit'");
     }
 
     fn run_git_tag(&self, version: &str) {
@@ -98,12 +108,13 @@ impl<'a> Git<'a> {
             .stdout(Stdio::null())
             .current_dir(&self.path.as_path())
             .spawn()
-            .expect("git tag failed");
+            .expect("git tag failed")
+            .wait()
+            .expect("Failed to finish 'git tag'");
     }
 
     fn run_git_push(&self, only_tags: bool, use_force: bool) {
         let mut cmd = Command::new("git");
-
         cmd.arg("push")
             .stdout(Stdio::null())
             .current_dir(&self.path.as_path());
@@ -111,11 +122,13 @@ impl<'a> Git<'a> {
         if only_tags {
             cmd.arg("--tags");
         }
-
         if use_force {
             cmd.arg("--force");
         }
 
-        cmd.spawn().expect("git push failed");
+        cmd.spawn()
+            .expect("git push failed")
+            .wait()
+            .expect("failed to finish git push");
     }
 }
