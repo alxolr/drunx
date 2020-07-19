@@ -13,3 +13,6 @@ structopt = "0"
 [dev-dependencies]
 assert_cmd = "1"
 predicates = "1"
+
+[profile.release]
+codegen-unit = 1
