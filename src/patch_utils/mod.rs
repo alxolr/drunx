@@ -47,4 +47,12 @@ mod tests {
 
     assert_eq!(compute_patch_letter(release), expected);
   }
+
+  #[test]
+  fn for_the_case_of_last_letter_aa_add_ab() {
+    let release = "1.0.0aa";
+    let expected = "1.0.0ab".to_string();
+
+    assert_eq!(compute_patch_letter(release), expected);
+  }
 }
