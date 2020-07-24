@@ -1,4 +1,4 @@
-# drunx 1.2.0
+# drunx 1.2.1
 
 Productivity scripts for deployment
 
