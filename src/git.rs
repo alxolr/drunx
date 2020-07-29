@@ -56,7 +56,7 @@ impl<'a> Git<'a> {
         println!("git add . ");
         println!("git commit -a -m \"{}\"", version);
         println!(
-            "git tag -a \"{}\" -m \"{}\"",
+            "git tag -a \"{}\" -m \"v{}\"",
             version,
             format!("Released version 'v{}'", version)
         );
