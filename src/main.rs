@@ -16,7 +16,7 @@ use version::Version;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
-    version = "1.2.1",
+    version = "1.3.0",
     about = "Productivity scripts for deployment",
     rename_all = "kebab-case"
 )]

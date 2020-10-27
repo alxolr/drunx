@@ -54,11 +54,10 @@ impl<'a> Git<'a> {
 
     pub fn run(&self, version: &str) -> Result<(), Box<dyn Error>> {
         println!("git add . ");
-        println!("git commit -a -m \"{}\"", version);
+        println!("git commit -a -m \"release/{}\"", version);
         println!(
-            "git tag -a \"{}\" -m \"v{}\"",
-            version,
-            format!("Released version 'v{}'", version)
+            "git tag -a \"release/{}\" -m \"Added 'release/{}' version\"",
+            version, version,
         );
         println!("git push -f");
         println!("git push --tags");
@@ -87,7 +86,7 @@ impl<'a> Git<'a> {
 
     fn run_git_commit(&self, version: &str) {
         Command::new("git")
-            .args(&["commit", "-a", "-m", &format!("v{}", version)])
+            .args(&["commit", "-a", "-m", &format!("release/{}", version)])
             .stdout(Stdio::null())
             .current_dir(&self.path.as_path())
             .spawn()
@@ -101,9 +100,9 @@ impl<'a> Git<'a> {
             .args(&[
                 "tag",
                 "-a",
-                &format!("v{}", version),
+                &format!("release/{}", version),
                 "-m",
-                &format!("Released version 'v{}'", version),
+                &format!("Added \"release/{}\" version", version),
             ])
             .stdout(Stdio::null())
             .current_dir(&self.path.as_path())
