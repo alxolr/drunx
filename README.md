@@ -1,4 +1,4 @@
-# drunx 1.4.0
+# drunx 1.4.1
 
 ```
 Productivity scripts for deployment

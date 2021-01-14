@@ -29,13 +29,29 @@ impl Patch {
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
         let package_path = PathBuf::from(&self.path).join("package.json");
         let package_lock_path = PathBuf::from(&self.path).join("package-lock.json");
+        let version_path = PathBuf::from(&self.path).join("version.json");
+
         let release = self.get_patch_version(&package_path)?;
 
         println!("Updating version '{}' in package.json", &release);
-        println!("Updating version '{}' in package-lock.json", &release);
+        println!(
+            "Updating version '{}' in package-lock.json if exists",
+            &release
+        );
+        println!("Updating version '{}' in version.json if exists", &release);
+
         if !self.dry_run {
-            version_utils::change_version(&package_path, &release)?;
-            version_utils::change_version(&package_lock_path, &release)?;
+            if package_path.exists() {
+                version_utils::change_version(&package_path, &release)?;
+            }
+
+            if package_lock_path.exists() {
+                version_utils::change_version(&package_lock_path, &release)?;
+            }
+
+            if version_path.exists() {
+                version_utils::change_version(&version_path, &release)?;
+            }
         }
 
         let git = Git::new(&self.path, self.dry_run);
