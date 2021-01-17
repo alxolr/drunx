@@ -29,7 +29,7 @@ impl Patch {
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
         let package_path = PathBuf::from(&self.path).join("package.json");
         let package_lock_path = PathBuf::from(&self.path).join("package-lock.json");
-        let version_path = PathBuf::from(&self.path).join("version.json");
+        let version_path = PathBuf::from(&self.path).join(PathBuf::from("./src/version.json"));
 
         let release = self.get_patch_version(&package_path)?;
 
@@ -38,7 +38,10 @@ impl Patch {
             "Updating version '{}' in package-lock.json if exists",
             &release
         );
-        println!("Updating version '{}' in version.json if exists", &release);
+        println!(
+            "Updating version '{}' in ./src/version.json if exists",
+            &release
+        );
 
         if !self.dry_run {
             if package_path.exists() {

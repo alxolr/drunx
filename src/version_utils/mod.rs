@@ -5,7 +5,7 @@ use std::io::{BufReader, Read, Write};
 use std::path::PathBuf;
 
 pub fn find(contents: &str) -> Option<String> {
-    let re = Regex::new(r#""version":\s"([0-9a-z\.]+)""#).unwrap();
+    let re = Regex::new(r#""version":\s?"([0-9a-z\.]+)""#).unwrap();
     let capts = re.captures(contents);
 
     if capts.is_some() {
@@ -39,6 +39,8 @@ pub fn change_version(file_path: &PathBuf, next_version: &str) -> Result<(), Box
     let version = find(&contents);
     if version.is_some() {
         contents = contents.replacen(&version.unwrap(), next_version, 2);
+    } else {
+        println!("Couldn't indentify the version");
     }
 
     let mut file = OpenOptions::new().write(true).open(file_path.as_path())?;
