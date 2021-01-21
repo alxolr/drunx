@@ -1,5 +1,5 @@
+mod clean_branch;
 mod git;
-mod git_clean;
 mod patch;
 mod patch_utils;
 mod release;
@@ -7,7 +7,7 @@ mod report;
 mod version;
 mod version_utils;
 
-use git_clean::GitClean;
+use clean_branch::CleanBranch;
 use patch::Patch;
 use release::Release;
 use report::Report;
@@ -26,7 +26,7 @@ enum Drunx {
     Version(Version),
     Patch(Patch),
     Release(Release),
-    GitClean(GitClean),
+    CleanBranch(CleanBranch),
     Report(Report),
 }
 
@@ -37,7 +37,7 @@ fn run() -> Result<(), Box<dyn Error>> {
         Drunx::Patch(patch) => patch.run()?,
         Drunx::Release(release) => release.run()?,
         Drunx::Report(report) => report.run()?,
-        Drunx::GitClean(git_clean) => git_clean.run()?,
+        Drunx::CleanBranch(clean_branch) => clean_branch.run()?,
     }
 
     Ok(())

@@ -5,8 +5,8 @@ use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 #[structopt(about = "Remove all branches merged with the local base branch")]
-pub struct GitClean {
-    #[structopt(help = "Branch name")]
+pub struct CleanBranch {
+    #[structopt(help = "Local branch name")]
     branch: String,
     #[structopt(
         short = "d",
@@ -23,7 +23,7 @@ pub struct GitClean {
     path: PathBuf,
 }
 
-impl GitClean {
+impl CleanBranch {
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
         println!("working like charm");
         Ok(())
