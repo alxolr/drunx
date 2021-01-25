@@ -43,7 +43,10 @@ pub fn change_version(file_path: &PathBuf, next_version: &str) -> Result<(), Box
         println!("Couldn't indentify the version");
     }
 
-    let mut file = OpenOptions::new().write(true).open(file_path.as_path())?;
+    let mut file = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .open(file_path.as_path())?;
 
     file.write_all(contents.as_bytes())?;
     file.sync_all()?;
