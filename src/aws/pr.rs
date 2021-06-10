@@ -1,3 +1,4 @@
+
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::result::Result;
@@ -9,7 +10,7 @@ use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 #[structopt(about = "Create Aws Pr from command line")]
-pub struct AwsPr {
+pub struct Pr {
     #[structopt(help = "Source branch name")]
     source: String,
     #[structopt(help = "Target branch name")]
@@ -42,7 +43,7 @@ struct PullRequest {
     pull_request_id: String,
 }
 
-impl AwsPr {
+impl Pr {
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
         let pwd = String::from_utf8(
             Command::new("pwd")

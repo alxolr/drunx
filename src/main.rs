@@ -1,4 +1,4 @@
-mod aws_pr;
+mod aws;
 mod git;
 mod patch;
 mod patch_utils;
@@ -7,7 +7,7 @@ mod report;
 mod version;
 mod version_utils;
 
-use aws_pr::AwsPr;
+use aws::Aws;
 use patch::Patch;
 use release::Release;
 use report::Report;
@@ -18,16 +18,16 @@ use version::Version;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
-    version = "1.5.0",
-    about = "Productivity scripts for deployment",
+    version = "1.6.0",
+    about = "Productivity commands",
     rename_all = "kebab-case"
 )]
 enum Drunx {
     Version(Version),
     Patch(Patch),
     Release(Release),
-    AwsPr(AwsPr),
     Report(Report),
+    Aws(Aws),
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
@@ -37,7 +37,7 @@ fn run() -> Result<(), Box<dyn Error>> {
         Drunx::Patch(patch) => patch.run()?,
         Drunx::Release(release) => release.run()?,
         Drunx::Report(report) => report.run()?,
-        Drunx::AwsPr(aws_pr) => aws_pr.run()?,
+        Drunx::Aws(aws) => aws.run()?,
     }
 
     Ok(())
