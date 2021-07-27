@@ -1,6 +1,7 @@
-# drunx 1.6.0
+# drunx 1.7.0
 
 ```
+drunx 1.7.0
 Productivity commands
 
 USAGE:
@@ -12,10 +13,9 @@ FLAGS:
 
 SUBCOMMANDS:
     aws        Aws Cli Shortcuts
+    git        Git Cli helpers
     help       Prints this message or the help of the given subcommand(s)
     patch      Change the package.json, package-lock.json with the needed patch version
-    release    Hard reset the code from one branch to an other
-    report     Displays the git logs between last two tags
     version    Release the specified version in package.json, package-lock.json
                adds a release commit and an annotated tag
 ```
