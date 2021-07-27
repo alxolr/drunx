@@ -1,16 +1,14 @@
 mod aws;
 mod git;
+mod git_utils;
 mod patch;
 mod patch_utils;
-mod release;
-mod report;
 mod version;
 mod version_utils;
 
 use aws::Aws;
+use git::Git;
 use patch::Patch;
-use release::Release;
-use report::Report;
 use std::error::Error;
 use std::process;
 use structopt::StructOpt;
@@ -18,16 +16,15 @@ use version::Version;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
-    version = "1.6.0",
+    version = "1.7.0",
     about = "Productivity commands",
     rename_all = "kebab-case"
 )]
 enum Drunx {
     Version(Version),
     Patch(Patch),
-    Release(Release),
-    Report(Report),
     Aws(Aws),
+    Git(Git),
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
@@ -35,9 +32,8 @@ fn run() -> Result<(), Box<dyn Error>> {
     match cmd {
         Drunx::Version(version) => version.run()?,
         Drunx::Patch(patch) => patch.run()?,
-        Drunx::Release(release) => release.run()?,
-        Drunx::Report(report) => report.run()?,
         Drunx::Aws(aws) => aws.run()?,
+        Drunx::Git(git) => git.run()?,
     }
 
     Ok(())

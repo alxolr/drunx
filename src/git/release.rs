@@ -1,4 +1,4 @@
-use crate::git::Git;
+use crate::git_utils::Git;
 
 use std::error::Error;
 use std::path::PathBuf;

@@ -55,7 +55,7 @@ pub fn change_version(file_path: &PathBuf, next_version: &str) -> Result<(), Box
 }
 
 #[cfg(test)]
-mod find {
+mod tests {
     use super::find;
 
     #[test]

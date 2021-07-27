@@ -15,6 +15,8 @@ pub struct Report {
         default_value = "."
     )]
     path: PathBuf,
+    #[structopt(help = "number of tags to include", default_value = "2")]
+    take: usize,
 }
 
 impl Report {
@@ -27,19 +29,24 @@ impl Report {
 
         let revisions = str::from_utf8(output.stdout.as_slice())?
             .split("\n")
-            .take(2)
+            .take(self.take)
             .collect::<Vec<_>>();
 
         println!(
             "git log --pretty=format:%s {}..{}",
-            revisions[1], revisions[0]
+            revisions.last().unwrap(),
+            revisions.first().unwrap()
         );
 
         let reports_bin = Command::new("git")
             .args(&[
                 "log",
                 "--pretty=format:%s",
-                &format!("{}..{}", revisions[1], revisions[0]),
+                &format!(
+                    "{}..{}",
+                    revisions.last().unwrap(),
+                    revisions.first().unwrap()
+                ),
             ])
             .current_dir(&self.path.as_path())
             .output()
@@ -47,7 +54,7 @@ impl Report {
 
         let reports_str = str::from_utf8(reports_bin.stdout.as_slice())?
             .split("\n")
-            .filter(|c| c != &revisions[0])
+            .filter(|c| c != revisions.first().unwrap())
             .map(|c| format!(" - {}", c))
             .collect::<Vec<_>>()
             .join("\n");

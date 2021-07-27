@@ -73,6 +73,22 @@ impl<'a> Git<'a> {
         Ok(())
     }
 
+    pub fn git_fetch(&self, prune: bool) -> Result<(), Box<dyn Error>> {
+        println!("git fetch --prune");
+
+        if !self.dry_run {
+            let mut cmd = Command::new("git");
+            if prune {
+                cmd.args(["fetch", "--prune"]);
+            } else {
+                cmd.args(["fetch"]);
+            }
+            cmd.spawn()?.wait().expect("git fetch failed");
+        }
+
+        Ok(())
+    }
+
     fn run_git_add(&self) {
         Command::new("git")
             .args(&["add", "."])

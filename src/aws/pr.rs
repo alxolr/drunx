@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::result::Result;
@@ -45,6 +44,43 @@ struct PullRequest {
 
 impl Pr {
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
+        let repo_name = self.extract_repository_name()?;
+        let targets = format!(
+            "repositoryName={},sourceReference={},destinationReference={}",
+            repo_name, self.source, self.target
+        );
+        println!(
+            "aws codecommit create-pull-request --title {} --targets {}",
+            self.title, &targets
+        );
+
+        if !self.dry_run {
+            let output = Command::new("aws")
+                .args(&[
+                    "codecommit",
+                    "create-pull-request",
+                    "--title",
+                    &self.title,
+                    "--targets",
+                    &targets,
+                ])
+                .stdout(Stdio::piped())
+                .current_dir(&self.path.as_path())
+                .output()?;
+
+            let str_json = String::from_utf8(output.stdout)?;
+            let commit: Commit = serde_json::from_str(&str_json)?;
+            println!(
+                "https://console.aws.amazon.com/codesuite/codecommit/repositories/{}/pull-requests/{}/details?region=us-east-1",
+                repo_name,
+                commit.pull_request.pull_request_id
+            );
+        }
+
+        Ok(())
+    }
+
+    fn extract_repository_name(&self) -> Result<String, Box<dyn Error>> {
         let pwd = String::from_utf8(
             Command::new("pwd")
                 .current_dir(self.path.clone())
@@ -52,7 +88,6 @@ impl Pr {
                 .expect("failed to execute process")
                 .stdout,
         );
-
         let unwrapped = pwd?;
         let repo_name_vec = unwrapped
             .split("/")
@@ -60,28 +95,8 @@ impl Pr {
             .unwrap()
             .split("\n")
             .collect::<Vec<_>>();
-        let repo_name = repo_name_vec.first().unwrap();
+        let repo_name = *repo_name_vec.first().unwrap();
 
-        let output = Command::new("aws")
-            .args(&[
-                "codecommit",
-                "create-pull-request",
-                "--title",
-                &self.title,
-                "--targets",
-                &format!(
-                    "repositoryName={},sourceReference={},destinationReference={}",
-                    repo_name, self.source, self.target
-                ),
-            ])
-            .stdout(Stdio::piped())
-            .current_dir(&self.path.as_path())
-            .output()?;
-
-        let str_json = String::from_utf8(output.stdout)?;
-        let commit: Commit = serde_json::from_str(&str_json)?;
-        println!("https://console.aws.amazon.com/codesuite/codecommit/repositories/{}/pull-requests/{}/details?region=us-east-1", repo_name, commit.pull_request.pull_request_id);
-
-        Ok(())
+        Ok(repo_name.to_string())
     }
 }

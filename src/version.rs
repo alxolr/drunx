@@ -1,4 +1,4 @@
-use crate::git::Git;
+use crate::git_utils::Git;
 use crate::version_utils;
 
 use std::error::Error;
