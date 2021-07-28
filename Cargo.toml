@@ -3,6 +3,14 @@ name = "drunx"
 version = "1.7.0"
 authors = ["Alexandru Olaru <alxolr@gmail.com>"]
 edition = "2018"
+description = "A command line tool to increase Team Leadership productivity"
+include = [
+    "**/*.rs",
+    "Cargo.toml",
+]
+license = "MIT OR Apache-2.0"
+keywords = ["cli", "productivity"]
+repository = "https://github.com/alxolr/drunx"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
