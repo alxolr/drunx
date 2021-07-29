@@ -1,6 +1,7 @@
 mod aws;
 mod git;
 mod git_utils;
+mod notify_utils;
 mod patch;
 mod patch_utils;
 mod version;
@@ -8,6 +9,7 @@ mod version_utils;
 
 use aws::Aws;
 use git::Git;
+use notify_utils::{Icon, Notification, Urgency};
 use patch::Patch;
 use std::error::Error;
 use std::process;
@@ -36,6 +38,7 @@ fn run() -> Result<(), Box<dyn Error>> {
         Drunx::Git(git) => git.run()?,
     }
 
+    Notification::new().send("message", Urgency::Low, Icon::FaceWink)?;
     Ok(())
 }
 
