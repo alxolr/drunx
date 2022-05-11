@@ -29,7 +29,7 @@ pub struct Release {
 
 impl Release {
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
-        let git = Git::new(&self.path, self.dry_run);
+        let git = Git::new(&self.path, self.dry_run, false);
         git.run_release(&self.from, &self.to)?;
 
         Ok(())

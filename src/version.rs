@@ -1,4 +1,5 @@
 use crate::git_utils::Git;
+use crate::notify_utils::{Icon, Notification, Urgency};
 use crate::version_utils;
 
 use std::error::Error;
@@ -19,6 +20,12 @@ pub struct Version {
         help = "Run the steps without executing"
     )]
     dry_run: bool,
+    #[structopt(
+        short = "n",
+        long = "no_verify",
+        help = "Run the git command without applying the git hooks"
+    )]
+    no_verify: bool,
     #[structopt(
         short = "p",
         long = "path",
@@ -56,7 +63,7 @@ impl Version {
                 self.replace(&version_path)?;
             }
         }
-        let git = Git::new(&self.path, self.dry_run);
+        let git = Git::new(&self.path, self.dry_run, self.no_verify);
         git.run(&self.release)?;
 
         Ok(())

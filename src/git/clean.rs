@@ -29,7 +29,7 @@ pub struct Clean {
 
 impl Clean {
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
-        Git::new(&self.path, self.dry_run).git_fetch(true)?;
+        Git::new(&self.path, self.dry_run, false).git_fetch(true)?;
 
         let remote_branches = self.get_remote_branches()?;
         let local_merged_branches = self.get_local_merged_branches()?;

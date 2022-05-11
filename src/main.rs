@@ -38,7 +38,7 @@ fn run() -> Result<(), Box<dyn Error>> {
         Drunx::Git(git) => git.run()?,
     }
 
-    Notification::new().send("message", Urgency::Low, Icon::FaceWink)?;
+  
     Ok(())
 }
 

@@ -5,11 +5,16 @@ use std::process::{Command, Stdio};
 pub struct Git<'a> {
     path: &'a PathBuf,
     dry_run: bool,
+    no_verify: bool,
 }
 
 impl<'a> Git<'a> {
-    pub fn new(path: &'a PathBuf, dry_run: bool) -> Git<'a> {
-        Git { path, dry_run }
+    pub fn new(path: &'a PathBuf, dry_run: bool, no_verify: bool) -> Git<'a> {
+        Git {
+            path,
+            dry_run,
+            no_verify,
+        }
     }
 
     pub fn run_release(&self, from: &str, to: &str) -> Result<(), Box<dyn Error>> {
@@ -101,9 +106,15 @@ impl<'a> Git<'a> {
     }
 
     fn run_git_commit(&self, version: &str) {
-        Command::new("git")
-            .args(&["commit", "-a", "-m", &format!("release/{}", version)])
-            .stdout(Stdio::null())
+        let mut cmd = Command::new("git");
+
+        cmd.args(["commit", "-a", "-m", &format!("release/{}", version)]);
+
+        if self.no_verify {
+            cmd.arg("--no-verify");
+        };
+
+        cmd.stdout(Stdio::null())
             .current_dir(&self.path.as_path())
             .spawn()
             .expect("git commit failed")
@@ -112,15 +123,16 @@ impl<'a> Git<'a> {
     }
 
     fn run_git_tag(&self, version: &str) {
-        Command::new("git")
-            .args(&[
-                "tag",
-                "-a",
-                &format!("release/{}", version),
-                "-m",
-                &format!("Added \"release/{}\" version", version),
-            ])
-            .stdout(Stdio::null())
+        let mut cmd = Command::new("git");
+        cmd.args([
+            "tag",
+            "-a",
+            &format!("release/{}", version),
+            "-m",
+            &format!("Added \"release/{}\" version", version),
+        ]);
+
+        cmd.stdout(Stdio::null())
             .current_dir(&self.path.as_path())
             .spawn()
             .expect("git tag failed")
@@ -137,8 +149,13 @@ impl<'a> Git<'a> {
         if only_tags {
             cmd.arg("--tags");
         }
+
         if use_force {
             cmd.arg("--force");
+        }
+
+        if self.no_verify {
+            cmd.arg("--no-verify");
         }
 
         cmd.spawn()

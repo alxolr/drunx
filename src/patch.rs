@@ -17,6 +17,12 @@ pub struct Patch {
     )]
     dry_run: bool,
     #[structopt(
+        short = "n",
+        long = "no_verify",
+        help = "Run the git command without applying the git hooks"
+    )]
+    no_verify: bool,
+    #[structopt(
         short = "p",
         long = "path",
         help = "Provide the path for the node project",
@@ -57,7 +63,7 @@ impl Patch {
             }
         }
 
-        let git = Git::new(&self.path, self.dry_run);
+        let git = Git::new(&self.path, self.dry_run, self.no_verify);
         git.run(&release)?;
 
         Ok(())
