@@ -4,12 +4,17 @@ use std::fs::OpenOptions;
 use std::io::{BufReader, Read, Write};
 use std::path::PathBuf;
 
-pub fn find(contents: &str) -> Option<String> {
-    let re = Regex::new(r#""version":\s?"([0-9a-z\.]+)""#).unwrap();
-    let capts = re.captures(contents);
+pub fn extract_version(contents: &str) -> Option<String> {
+    let regex_json = Regex::new(r#""version":\s?"([0-9a-z\.]+)""#).unwrap();
+    let regex_txt = Regex::new(r#"Version\s([0-9a-z\.]+)"#).unwrap();
 
-    if capts.is_some() {
-        Some(capts.unwrap()[1].to_string())
+    let json_captures = regex_json.captures(contents);
+    let txt_captures = regex_txt.captures(contents);
+
+    if json_captures.is_some() {
+        Some(json_captures.unwrap()[1].to_string())
+    } else if txt_captures.is_some() {
+        Some(txt_captures.unwrap()[1].to_string())
     } else {
         None
     }
@@ -21,7 +26,7 @@ pub fn get_version_from_file(file_path: &PathBuf) -> Result<String, Box<dyn Erro
     let mut contents = String::new();
     buf_reader.read_to_string(&mut contents)?;
 
-    let version = find(&contents);
+    let version = extract_version(&contents);
 
     match version {
         Some(version) => Ok(version),
@@ -36,7 +41,7 @@ pub fn change_version(file_path: &PathBuf, next_version: &str) -> Result<(), Box
     let mut contents = String::new();
     buf_reader.read_to_string(&mut contents)?;
 
-    let version = find(&contents);
+    let version = extract_version(&contents);
     if version.is_some() {
         contents = contents.replacen(&version.unwrap(), next_version, 2);
     } else {
@@ -56,7 +61,7 @@ pub fn change_version(file_path: &PathBuf, next_version: &str) -> Result<(), Box
 
 #[cfg(test)]
 mod tests {
-    use super::find;
+    use super::extract_version;
 
     #[test]
     fn extracts_the_version_if_exits() {
@@ -66,7 +71,7 @@ mod tests {
         "version": "1.0.0",
     }"#;
 
-        assert_eq!(find(content).unwrap(), "1.0.0".to_string());
+        assert_eq!(extract_version(content).unwrap(), "1.0.0".to_string());
     }
 
     #[test]
@@ -77,7 +82,7 @@ mod tests {
         "version": "1.0.0x",
     }"#;
 
-        assert_eq!(find(content).unwrap(), "1.0.0x".to_string());
+        assert_eq!(extract_version(content).unwrap(), "1.0.0x".to_string());
     }
 
     #[test]
@@ -87,7 +92,7 @@ mod tests {
         "name": "some_name",
     }"#;
 
-        assert_eq!(find(content), None);
+        assert_eq!(extract_version(content), None);
     }
 
     #[test]
@@ -101,6 +106,6 @@ mod tests {
         }
     }"#;
 
-        assert_eq!(find(content), Some(String::from("1.0.0x")));
+        assert_eq!(extract_version(content), Some(String::from("1.0.0x")));
     }
 }

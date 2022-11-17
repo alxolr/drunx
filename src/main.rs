@@ -9,7 +9,6 @@ mod version_utils;
 
 use aws::Aws;
 use git::Git;
-use notify_utils::{Icon, Notification, Urgency};
 use patch::Patch;
 use std::error::Error;
 use std::process;
@@ -18,7 +17,7 @@ use version::Version;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
-    version = "1.7.0",
+    version = "1.7.1",
     about = "Productivity commands",
     rename_all = "kebab-case"
 )]
