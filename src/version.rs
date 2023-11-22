@@ -1,5 +1,5 @@
+use crate::config::lookable_files;
 use crate::git_utils::Git;
-use crate::notify_utils::{Icon, Notification, Urgency};
 use crate::version_utils;
 
 use std::error::Error;
@@ -37,51 +37,24 @@ pub struct Version {
 
 impl Version {
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
-        let package_path = PathBuf::from(&self.path).join("package.json");
-        let package_lock_path = PathBuf::from(&self.path).join("package-lock.json");
-        let version_path = PathBuf::from(&self.path).join(PathBuf::from("./src/version.json"));
-        let readme_path = PathBuf::from(&self.path).join(PathBuf::from("README.txt"));
+        let files = lookable_files(&self.path);
 
-        println!("Updating version '{}' in package.json", &self.release);
-        println!(
-            "Updating version '{}' in package-lock.json if exists",
-            &self.release
-        );
-        println!(
-            "Updating version '{}' in ./src/version.json if exists",
-            &self.release
-        );
-        println!(
-            "Updating version '{}' in ./README.txt if exists",
-            &self.release
-        );
+        if files.is_empty() {
+            println!("No files found");
 
-        if !self.dry_run {
-            if package_path.exists() {
-                self.replace(&package_path)?;
-            }
+            return Ok(());
+        }
 
-            if package_lock_path.exists() {
-                self.replace(&package_lock_path)?;
-            }
+        for file in files {
+            println!("Updating version {} in {:?}", &self.release, &file);
 
-            if version_path.exists() {
-                self.replace(&version_path)?;
-            }
-
-            if readme_path.exists() {
-                self.replace(&readme_path)?;
+            if !self.dry_run {
+                version_utils::change_version(&file, &self.release)?;
             }
         }
 
         let git = Git::new(&self.path, self.dry_run, self.no_verify);
         git.run(&self.release)?;
-
-        Ok(())
-    }
-
-    fn replace(&self, file_path: &PathBuf) -> Result<(), Box<dyn Error>> {
-        version_utils::change_version(file_path, &self.release)?;
 
         Ok(())
     }

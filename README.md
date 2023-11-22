@@ -1,7 +1,7 @@
-# drunx 1.7.1
+# drunx 1.7.2
 
 ```
-drunx 1.7.0
+drunx 1.7.2
 Productivity commands
 
 USAGE:

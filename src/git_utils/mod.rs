@@ -59,9 +59,9 @@ impl<'a> Git<'a> {
 
     pub fn run(&self, version: &str) -> Result<(), Box<dyn Error>> {
         println!("git add . ");
-        println!("git commit -a -m \"release/{}\"", version);
+        println!("git commit -a -m \"@{} release\"", version);
         println!(
-            "git tag -a \"release/{}\" -m \"Added 'release/{}' version\"",
+            "git tag -a \"@{}\" -m \"Added '@{} release' version\"",
             version, version,
         );
         println!("git push -f");
@@ -108,7 +108,7 @@ impl<'a> Git<'a> {
     fn run_git_commit(&self, version: &str) {
         let mut cmd = Command::new("git");
 
-        cmd.args(["commit", "-a", "-m", &format!("release/{}", version)]);
+        cmd.args(["commit", "-a", "-m", &format!("@{} release", version)]);
 
         if self.no_verify {
             cmd.arg("--no-verify");
@@ -127,9 +127,9 @@ impl<'a> Git<'a> {
         cmd.args([
             "tag",
             "-a",
-            &format!("release/{}", version),
+            &format!("@{}", version),
             "-m",
-            &format!("Added \"release/{}\" version", version),
+            &format!("Added \"@{} release\" version", version),
         ]);
 
         cmd.stdout(Stdio::null())

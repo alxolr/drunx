@@ -1,10 +1,10 @@
 mod aws;
 mod git;
 mod git_utils;
-mod notify_utils;
 mod patch;
 mod patch_utils;
 mod version;
+mod config;
 mod version_utils;
 
 use aws::Aws;
@@ -17,7 +17,7 @@ use version::Version;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
-    version = "1.7.1",
+    version = "1.7.3",
     about = "Productivity commands",
     rename_all = "kebab-case"
 )]
@@ -36,7 +36,6 @@ fn run() -> Result<(), Box<dyn Error>> {
         Drunx::Aws(aws) => aws.run()?,
         Drunx::Git(git) => git.run()?,
     }
-
   
     Ok(())
 }

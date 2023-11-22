@@ -1,3 +1,4 @@
+use crate::config;
 use crate::git_utils::Git;
 use crate::patch_utils;
 use crate::version_utils;
@@ -33,33 +34,22 @@ pub struct Patch {
 
 impl Patch {
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
-        let package_path = PathBuf::from(&self.path).join("package.json");
-        let package_lock_path = PathBuf::from(&self.path).join("package-lock.json");
-        let version_path = PathBuf::from(&self.path).join(PathBuf::from("./src/version.json"));
+        let files = config::lookable_files(&self.path);
 
-        let release = self.get_patch_version(&package_path)?;
+        if files.is_empty() {
+            println!("No files found");
 
-        println!("Updating version '{}' in package.json", &release);
-        println!(
-            "Updating version '{}' in package-lock.json if exists",
-            &release
-        );
-        println!(
-            "Updating version '{}' in ./src/version.json if exists",
-            &release
-        );
+            return Ok(());
+        }
 
-        if !self.dry_run {
-            if package_path.exists() {
-                version_utils::change_version(&package_path, &release)?;
-            }
+        let first_file = files.first().unwrap();
+        let release = self.get_patch_version(first_file)?;
 
-            if package_lock_path.exists() {
-                version_utils::change_version(&package_lock_path, &release)?;
-            }
+        for file in files {
+            println!("Updating version {} in {:?}", &release, &file);
 
-            if version_path.exists() {
-                version_utils::change_version(&version_path, &release)?;
+            if !self.dry_run {
+                version_utils::change_version(&file, &release)?;
             }
         }
 
